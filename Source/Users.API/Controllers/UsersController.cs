@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Users.API.Services;
 
 namespace Users.API.Controllers
 {
@@ -10,19 +11,20 @@ namespace Users.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private IList<User> Users { get; set; }
-
+        private IUsersRepository _usersRepository;
+        
         public UsersController()
         {
-            Users = new List<User>();
+            _usersRepository = new UsersRepository();
         }
 
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<IEnumerable<User>> Get()
         {
             // Return 'John Morsley' and 'Jason Morsley'
-            return new string[] { "value1", "value2" };
+            var usersRepository = _usersRepository.GetAllUsers();
+            return Ok(usersRepository);
         }
 
         // GET api/values/5
@@ -44,13 +46,14 @@ namespace Users.API.Controllers
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
+
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            // Delete 'Jason Morsley'
+            _userR
         }
     }
 }
