@@ -24,27 +24,27 @@ namespace Users.API.Services
             _users = new List<User>();
         }
 
-        public IEnumerable<User> GetAllUsers()
+        public IEnumerable<User> GetAll()
         {
             return _users;
         }
 
-        public User GetUser(Guid userId)
+        public User Get(Guid userId)
         {
             return _users.First(x => x.Id == userId);
         }
 
-        public void AddUser(User user)
+        public void Add(User user)
         {
             
         }
 
-        public void DeleteUser(User user)
+        public void Delete(Guid userId)
         {
             
         }
 
-        public void UpdateUser(User user)
+        public void Update(User user)
         {
             
         }

@@ -7,12 +7,12 @@ namespace Users.API.Services
 {
     public interface IUsersRepository
     {
-        IEnumerable<User> GetAllUsers();
-        User GetUser(Guid userId);
+        IEnumerable<User> GetAll();
+        User Get(Guid userId);
         //IEnumerable<User> GetUsers(IEnumerable<Guid> userIds);
-        void AddUser(User user);
-        void DeleteUser(User user);
-        void UpdateUser(User user);
+        void Add(User user);
+        void Delete(Guid user);
+        void Update(User user);
         //bool UserExists(Guid userId);
         //bool Save();
     }

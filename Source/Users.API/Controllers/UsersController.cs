@@ -22,38 +22,37 @@ namespace Users.API.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<User>> Get()
         {
-            // Return 'John Morsley' and 'Jason Morsley'
-            var usersRepository = _usersRepository.GetAllUsers();
-            return Ok(usersRepository);
+            var users = _usersRepository.GetAll();
+            return Ok(users);
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public ActionResult<string> Get(Guid userId)
         {
-            // Return 'Jason Morsley'
-            return "value";
+            var user = _usersRepository.Get(userId);
+            return Ok(user);
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] User user)
         {
-            // Add 'John Morsley'
+            _usersRepository.Add(user);
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public void Put(int id, [FromBody] User user)
         {
-
+            _usersRepository.Update(user);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void Delete(Guid userId)
         {
-            _userR
+            _usersRepository.Delete(userId);
         }
     }
 }
