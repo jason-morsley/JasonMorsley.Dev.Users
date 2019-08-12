@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Users.API.Entities;
 using Users.API.Models;
 using Users.API.Services;
 
@@ -48,9 +49,20 @@ namespace Users.API.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] User user)
+        public ActionResult Post([FromBody] User user)
         {
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            var userEntity = Mapper.Map<User>(user);
+
             _usersRepository.Add(user);
+
+            var userToReturn = Mapper.Map<UserDto>(userEntity);
+
+            return CreatedAtRoute("GetUser", new {Id = userToReturn.Id}, userToReturn);
         }
 
         // PUT api/values/5
@@ -62,9 +74,18 @@ namespace Users.API.Controllers
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(User user)
+        public ActionResult Delete(Guid Id)
         {
-            _usersRepository.Delete(user);
+            var userFromRepo = _usersRepository.Get(Id);
+
+            if (userFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _usersRepository.Delete(userFromRepo);
+
+            return NoContent();
         }
     }
 }

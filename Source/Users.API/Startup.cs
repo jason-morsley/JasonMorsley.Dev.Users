@@ -58,6 +58,8 @@ namespace Users.API
                 cfg.CreateMap<User, UserDto>()
                     .ForMember(destination => destination.Name, options => options.MapFrom(src =>
                         $"{src.FirstName} {src.LastName}"));
+
+                cfg.CreateMap<UserForCreationDto, User>();
             });
 
             //IMapper iMapper = config.CreateMapper();
