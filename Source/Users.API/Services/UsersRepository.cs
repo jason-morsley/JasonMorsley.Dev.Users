@@ -26,7 +26,8 @@ namespace Users.API.Services
 
         public IEnumerable<User> GetAll()
         {
-            return _users;
+            return _users.OrderBy(x => x.FirstName).ThenBy(x => x.LastName).ToList();
+            //return _users;
         }
 
         public User Get(Guid userId)
@@ -36,12 +37,13 @@ namespace Users.API.Services
 
         public void Add(User user)
         {
-            
+            user.Id = Guid.NewGuid();
+            _users.Add(user);
         }
 
-        public void Delete(Guid userId)
+        public void Delete(User user)
         {
-            
+            _users.Remove(user);
         }
 
         public void Update(User user)

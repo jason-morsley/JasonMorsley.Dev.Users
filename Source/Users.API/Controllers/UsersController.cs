@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Users.API.Models;
 using Users.API.Services;
 
 namespace Users.API.Controllers
@@ -13,16 +16,18 @@ namespace Users.API.Controllers
     {
         private IUsersRepository _usersRepository;
         
-        public UsersController()
+        public UsersController(IUsersRepository usersRepository)
         {
-            _usersRepository = new UsersRepository();
+            _usersRepository = usersRepository;
         }
 
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<User>> Get()
         {
-            var users = _usersRepository.GetAll();
+            var usersFromRepo = _usersRepository.GetAll();
+
+            var users = Mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
             return Ok(users);
         }
 
@@ -30,7 +35,14 @@ namespace Users.API.Controllers
         [HttpGet("{id}")]
         public ActionResult<string> Get(Guid userId)
         {
-            var user = _usersRepository.Get(userId);
+            var userFromRepo = _usersRepository.Get(userId);
+
+            if (userFromRepo == null)
+            {
+                return NotFound();
+            }
+            var user = Mapper.Map<IEnumerable<UserDto>>(userFromRepo);
+
             return Ok(user);
         }
 
@@ -50,9 +62,9 @@ namespace Users.API.Controllers
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(Guid userId)
+        public void Delete(User user)
         {
-            _usersRepository.Delete(userId);
+            _usersRepository.Delete(user);
         }
     }
 }

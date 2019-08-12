@@ -11,7 +11,7 @@ namespace Users.API.Services
         User Get(Guid userId);
         //IEnumerable<User> GetUsers(IEnumerable<Guid> userIds);
         void Add(User user);
-        void Delete(Guid user);
+        void Delete(User user);
         void Update(User user);
         //bool UserExists(Guid userId);
         //bool Save();
