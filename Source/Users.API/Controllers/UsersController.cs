@@ -21,7 +21,6 @@ namespace Users.API.Controllers
             _mapper = mapper;
         }
 
-        // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<User>> Get()
         {
@@ -30,8 +29,11 @@ namespace Users.API.Controllers
             var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
             return Ok(users);
         }
-
-        // GET api/values/5
+        /// <summary>
+        /// Get a user by their id
+        /// </summary>
+        /// <param name="userId">The id of the user you want to get</param>
+        /// <returns>A User with id, firstname and lastname fields</returns>
         [HttpGet("{id}")]
         public ActionResult<string> Get(Guid userId)
         {
@@ -46,7 +48,6 @@ namespace Users.API.Controllers
             return Ok(user);
         }
 
-        // POST api/values
         [HttpPost]
         public ActionResult Post([FromBody] User user)
         {
@@ -64,14 +65,12 @@ namespace Users.API.Controllers
             return CreatedAtRoute("GetUser", new {Id = userToReturn.Id}, userToReturn);
         }
 
-        // PUT api/values/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] User user)
         {
             _usersRepository.Update(user);
         }
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
         public ActionResult Delete(Guid Id)
         {

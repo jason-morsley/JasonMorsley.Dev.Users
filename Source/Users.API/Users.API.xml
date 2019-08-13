@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Users.API</name>
+    </assembly>
+    <members>
+        <member name="M:Users.API.Controllers.UsersController.Get(System.Guid)">
+            <summary>
+            Get a user by their id
+            </summary>
+            <param name="userId">The id of the user you want to get</param>
+            <returns>A User with id, firstname and lastname fields</returns>
+        </member>
+        <member name="T:Users.API.Entities.User">
+            <summary>
+            A user with Id, FirstName and LastName fields
+            </summary>
+        </member>
+        <member name="P:Users.API.Entities.User.Id">
+            <summary>
+            The id of the user
+            </summary>
+        </member>
+        <member name="P:Users.API.Entities.User.FirstName">
+            <summary>
+            The first name of the user
+            </summary>
+        </member>
+        <member name="P:Users.API.Entities.User.LastName">
+            <summary>
+            The last name of the user
+            </summary>
+        </member>
+        <member name="P:Users.API.Models.UserDto.Id">
+            <summary>
+            The id of the user
+            </summary>
+        </member>
+        <member name="P:Users.API.Models.UserDto.Name">
+            <summary>
+            
+            </summary>
+        </member>
+    </members>
+</doc>

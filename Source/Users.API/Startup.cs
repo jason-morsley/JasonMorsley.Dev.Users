@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using Users.API.Entities;
 using Users.API.Models;
 using Users.API.Services;
@@ -34,6 +37,19 @@ namespace Users.API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddSwaggerGen(setupAction =>
+            {
+                setupAction.SwaggerDoc("UserOpenAPISpecification", new OpenApiInfo()
+                {
+                    Title = "User API",
+                    Version = "1"
+                });
+                var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+
+                setupAction.IncludeXmlComments(xmlCommentsFullPath);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,6 +85,15 @@ namespace Users.API
             //var destination = iMapper.Map<User, UserDto>(source);
             
             app.UseHttpsRedirection();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(setupAction =>
+            {
+                setupAction.SwaggerEndpoint("/swagger/UserOpenAPISpecification/swagger.json", "User API");
+                setupAction.RoutePrefix = "";
+            });
+
             app.UseMvc();
         }
     }
