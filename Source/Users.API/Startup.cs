@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Users.API.Entities;
 using Users.API.Models;
+using Users.API.Services;
 
 namespace Users.API
 {
@@ -31,10 +32,12 @@ namespace Users.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSingleton<IUsersRepository, UsersRepository>();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, UserContext userContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) //, UserContext userContext)
         {
             if (env.IsDevelopment())
             {
@@ -48,7 +51,6 @@ namespace Users.API
                     {
                         context.Response.StatusCode = 500;
                         await context.Response.WriteAsync("An unexpected fault happened. Try again later.");
-
                     });
                 });
             }

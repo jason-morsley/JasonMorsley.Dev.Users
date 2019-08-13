@@ -12,11 +12,13 @@ namespace Users.API.Controllers
     [ApiController]
     public class UsersController : Controller
     {
-        private IUsersRepository _usersRepository;
-        
-        public UsersController(IUsersRepository usersRepository)
+        private readonly IUsersRepository _usersRepository;
+        private readonly IMapper _mapper;
+
+        public UsersController(IUsersRepository usersRepository, IMapper mapper)
         {
             _usersRepository = usersRepository;
+            _mapper = mapper;
         }
 
         // GET api/values
@@ -25,7 +27,7 @@ namespace Users.API.Controllers
         {
             var usersFromRepo = _usersRepository.GetAll();
 
-            var users = Mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
+            var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
             return Ok(users);
         }
 
@@ -39,7 +41,7 @@ namespace Users.API.Controllers
             {
                 return NotFound();
             }
-            var user = Mapper.Map<IEnumerable<UserDto>>(userFromRepo);
+            var user = _mapper.Map<IEnumerable<UserDto>>(userFromRepo);
 
             return Ok(user);
         }
@@ -53,11 +55,11 @@ namespace Users.API.Controllers
                 return BadRequest();
             }
 
-            var userEntity = Mapper.Map<User>(user);
+            var userEntity = _mapper.Map<User>(user);
 
             _usersRepository.Add(user);
 
-            var userToReturn = Mapper.Map<UserDto>(userEntity);
+            var userToReturn = _mapper.Map<UserDto>(userEntity);
 
             return CreatedAtRoute("GetUser", new {Id = userToReturn.Id}, userToReturn);
         }
