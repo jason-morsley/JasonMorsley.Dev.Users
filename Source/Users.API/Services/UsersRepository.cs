@@ -10,45 +10,52 @@ namespace Users.API.Services
 {
     public class UsersRepository : IUsersRepository
     {
-        //private UserContext _context;
+        private UserContext _users;
 
-        //public UsersRepository(UserContext context)
-        //{
-        //    _context = context;
-        //}
-
-        private IList<User> _users;
-
-        public UsersRepository()
+        public UsersRepository(UserContext context)
         {
-            _users = new List<User>();
+            _users = context;
         }
+
+        //private IList<User> _users;
+
+        //public UsersRepository()
+        //{
+        //    _users = new List<User>();
+        //}
 
         public IEnumerable<User> GetAll()
         {
-            return _users.OrderBy(x => x.FirstName).ThenBy(x => x.LastName).ToList();
-            //return _users;
+            return _users.Users
+                .OrderBy(x => x.FirstName)
+                .ThenBy(x => x.LastName)
+                .ToList();
         }
 
         public User Get(Guid userId)
         {
-            return _users.First(x => x.Id == userId);
+            return _users.Users.FirstOrDefault(x => x.Id == userId);
         }
 
         public void Add(User user)
         {
             user.Id = Guid.NewGuid();
-            _users.Add(user);
+            _users.Users.Add(user);
         }
 
         public void Delete(User user)
         {
-            _users.Remove(user);
+            _users.Users.Remove(user);
         }
 
         public void Update(User user)
         {
-            
+            //no code in this implementation
+        }
+
+        public bool Save()
+        {
+            return (_users.SaveChanges() >= 0);
         }
     }
 }

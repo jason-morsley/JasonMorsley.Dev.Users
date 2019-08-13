@@ -30,5 +30,8 @@ namespace Users.API.Entities
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
+
+        //[Required]
+        //public DateTimeOffset DateOfBirth { get; set; }
     }
 }

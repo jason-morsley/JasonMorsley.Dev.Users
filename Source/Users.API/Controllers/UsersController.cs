@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Users.API.Entities;
 using Users.API.Models;
@@ -22,20 +23,24 @@ namespace Users.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<User>> Get()
+        public ActionResult Get()
         {
             var usersFromRepo = _usersRepository.GetAll();
 
             var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
             return Ok(users);
         }
+
         /// <summary>
         /// Get a user by their id
         /// </summary>
         /// <param name="userId">The id of the user you want to get</param>
         /// <returns>A User with id, firstname and lastname fields</returns>
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("{id}")]
-        public ActionResult<string> Get(Guid userId)
+        public ActionResult Get(Guid userId)
         {
             var userFromRepo = _usersRepository.Get(userId);
 
@@ -43,8 +48,8 @@ namespace Users.API.Controllers
             {
                 return NotFound();
             }
-            var user = _mapper.Map<IEnumerable<UserDto>>(userFromRepo);
 
+            var user = _mapper.Map<IEnumerable<UserDto>>(userFromRepo);
             return Ok(user);
         }
 
@@ -62,7 +67,9 @@ namespace Users.API.Controllers
 
             var userToReturn = _mapper.Map<UserDto>(userEntity);
 
-            return CreatedAtRoute("GetUser", new {Id = userToReturn.Id}, userToReturn);
+            return CreatedAtRoute("GetUser",
+                new {Id = userToReturn.Id},
+                userToReturn);
         }
 
         [HttpPut("{id}")]
@@ -82,6 +89,11 @@ namespace Users.API.Controllers
             }
 
             _usersRepository.Delete(userFromRepo);
+
+            if (!_usersRepository.Save())
+            {
+                throw new Exception($"Deleting user {Id} failed on save");
+            }
 
             return NoContent();
         }

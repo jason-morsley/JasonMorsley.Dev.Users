@@ -43,8 +43,21 @@ namespace Users.API
                 setupAction.SwaggerDoc("UserOpenAPISpecification", new OpenApiInfo()
                 {
                     Title = "User API",
-                    Version = "1"
+                    Version = "1",
+                    Description = "Through this API you can access users.",
+                    Contact = new OpenApiContact()
+                    {
+                        Email = "me@jasonmorsley.dev",
+                        Name = "Jason Morsley",
+                        //Url = new Uri("https://www.jasonmorsley.dev")
+                    },
+                    //License = new OpenApiLicense()
+                    //{
+                    //    Name = "MIT License",
+                    //    Url = new Uri("https://opensource.org/licenses/MIT")
+                    //}
                 });
+
                 var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
 
