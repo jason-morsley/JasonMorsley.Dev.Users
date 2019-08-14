@@ -85,13 +85,21 @@ namespace Users.API.Controllers
                 new {Id = userToReturn.Id},
                 userToReturn);
         }
-
+        /// <summary>
+        /// Not implemented yet.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="user"></param>
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] User user)
         {
             _usersRepository.Update(user);
         }
-
+        /// <summary>
+        /// Deletes a user by their id
+        /// </summary>
+        /// <param name="Id">The id of the user you wish to delete</param>
+        /// <returns>204 NoContent</returns>
         [HttpDelete("{id}")]
         public ActionResult Delete(Guid Id)
         {
