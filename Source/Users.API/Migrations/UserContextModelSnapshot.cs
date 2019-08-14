@@ -7,7 +7,7 @@ using Users.API.Entities;
 namespace Users.API.Migrations
 {
     [DbContext(typeof(User))]
-    partial class LibraryContextModelSnapshot : ModelSnapshot
+    partial class UserContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -15,7 +15,7 @@ namespace Users.API.Migrations
                 .HasAnnotation("ProductVersion", "1.0.1")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Library.API.Entities.Author", b =>
+            modelBuilder.Entity("User.API.Entities.User", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd();
@@ -30,7 +30,7 @@ namespace Users.API.Migrations
 
                 //b.Property<DateTimeOffset>("DateOfBirth");
 
-                //b.HasKey("Id"); //Not used at the moment
+                //b.HasKey("Id"); //Not used at the moment, used with more than 1 table
             });
         }
     }

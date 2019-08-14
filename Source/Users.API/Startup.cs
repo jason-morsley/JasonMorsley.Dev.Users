@@ -6,10 +6,13 @@ using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +37,21 @@ namespace Users.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(setupAction =>
+            {
+                setupAction.ReturnHttpNotAcceptable = true;
+                setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+                //setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
+            });
+
+            //Here we register the DBContext, and get a connection string from app settings.
+            //It is only to be used during development as in production we will store it in the environment variable
+            var connectionString = Configuration["connectionStrings:userDBContextString"];
+            services.AddDbContext<UserContext>(opt => opt.UseSqlServer(connectionString));
+
+            //Registering the repo
+            services.AddScoped<IUsersRepository, UsersRepository>();
+
             services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddAutoMapper(typeof(Startup));
 
@@ -66,7 +83,7 @@ namespace Users.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) //, UserContext userContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) //,UserContext userContext)
         {
             if (env.IsDevelopment())
             {
@@ -78,8 +95,18 @@ namespace Users.API
                 {
                     appBuilder.Run(async context =>
                     {
+                        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+                        if (exceptionHandlerFeature != null)
+                        {
+                            var logger = loggerFactory.CreateLogger("Global exception logger");
+                            logger.LogError(500,
+                                exceptionHandlerFeature.Error,
+                                exceptionHandlerFeature.Error.Message);
+                        }
+
                         context.Response.StatusCode = 500;
                         await context.Response.WriteAsync("An unexpected fault happened. Try again later.");
+
                     });
                 });
             }
@@ -93,10 +120,6 @@ namespace Users.API
                 cfg.CreateMap<UserForCreationDto, User>();
             });
 
-            //IMapper iMapper = config.CreateMapper();
-            //var source = new User();
-            //var destination = iMapper.Map<User, UserDto>(source);
-            
             app.UseHttpsRedirection();
 
             app.UseSwagger();

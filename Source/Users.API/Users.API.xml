@@ -4,12 +4,25 @@
         <name>Users.API</name>
     </assembly>
     <members>
+        <member name="M:Users.API.Controllers.UsersController.Get">
+            <summary>
+            Gets all users
+            </summary>
+            <returns>All users with an id, firstname and lastname fields</returns>
+        </member>
         <member name="M:Users.API.Controllers.UsersController.Get(System.Guid)">
             <summary>
             Get a user by their id
             </summary>
             <param name="userId">The id of the user you want to get</param>
             <returns>A User with id, firstname and lastname fields</returns>
+        </member>
+        <member name="M:Users.API.Controllers.UsersController.Post(Users.API.Entities.User)">
+            <summary>
+            Adds a user given correct input
+            </summary>
+            <param name="user">A user populated with required details; firstname and lastname.</param>
+            <returns>201 Created</returns>
         </member>
         <member name="T:Users.API.Entities.User">
             <summary>
@@ -38,7 +51,7 @@
         </member>
         <member name="P:Users.API.Models.UserDto.Name">
             <summary>
-            
+            Full name of the user
             </summary>
         </member>
     </members>

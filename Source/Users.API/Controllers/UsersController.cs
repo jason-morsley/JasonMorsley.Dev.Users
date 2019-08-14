@@ -22,6 +22,10 @@ namespace Users.API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Gets all users
+        /// </summary>
+        /// <returns>All users with an id, firstname and lastname fields</returns>
         [HttpGet]
         public ActionResult Get()
         {
@@ -39,7 +43,7 @@ namespace Users.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name ="Get")]
         public ActionResult Get(Guid userId)
         {
             var userFromRepo = _usersRepository.Get(userId);
@@ -53,6 +57,11 @@ namespace Users.API.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Adds a user given correct input
+        /// </summary>
+        /// <param name="user">A user populated with required details; firstname and lastname.</param>
+        /// <returns>201 Created</returns>
         [HttpPost]
         public ActionResult Post([FromBody] User user)
         {
@@ -64,6 +73,11 @@ namespace Users.API.Controllers
             var userEntity = _mapper.Map<User>(user);
 
             _usersRepository.Add(user);
+
+            if (!_usersRepository.Save())
+            {
+                throw new Exception("Creating a user failed on save.");
+            }
 
             var userToReturn = _mapper.Map<UserDto>(userEntity);
 

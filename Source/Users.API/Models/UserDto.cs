@@ -12,7 +12,7 @@ namespace Users.API.Models
         /// </summary>
         public Guid Id { get; set; }
         /// <summary>
-        /// 
+        /// Full name of the user
         /// </summary>
         public string Name { get; set; }
     }

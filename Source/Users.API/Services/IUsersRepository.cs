@@ -14,7 +14,7 @@ namespace Users.API.Services
         void Add(User user);
         void Delete(User user);
         void Update(User user);
-        //bool UserExists(Guid userId);
+        bool UserExists(Guid userId);
         bool Save();
     }
 }

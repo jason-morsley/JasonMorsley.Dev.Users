@@ -18,7 +18,6 @@ namespace Users.API.Services
         }
 
         //private IList<User> _users;
-
         //public UsersRepository()
         //{
         //    _users = new List<User>();
@@ -51,6 +50,11 @@ namespace Users.API.Services
         public void Update(User user)
         {
             //no code in this implementation
+        }
+
+        public bool UserExists(Guid userId)
+        {
+            return _users.Users.Any(a => a.Id == userId);
         }
 
         public bool Save()
