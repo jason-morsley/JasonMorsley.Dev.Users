@@ -9,8 +9,8 @@ using Users.API.Services;
 
 namespace Users.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/users")]
+    //[ApiController]
     public class UsersController : Controller
     {
         private readonly IUsersRepository _usersRepository;
@@ -43,7 +43,7 @@ namespace Users.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("{id}", Name ="Get")]
+        [HttpGet("{id}", Name = "GetUser")]
         public ActionResult Get(Guid userId)
         {
             var userFromRepo = _usersRepository.Get(userId);
@@ -62,8 +62,8 @@ namespace Users.API.Controllers
         /// </summary>
         /// <param name="user">A user populated with required details; firstname and lastname.</param>
         /// <returns>201 Created</returns>
-        [HttpPost]
-        public ActionResult Post([FromBody] User user)
+        [HttpPost(Name = "CreateUser")]
+        public ActionResult Post([FromBody] UserForCreationDto user)
         {
             if (user == null)
             {
@@ -72,7 +72,7 @@ namespace Users.API.Controllers
 
             var userEntity = _mapper.Map<User>(user);
 
-            _usersRepository.Add(user);
+            _usersRepository.Add(userEntity);
 
             if (!_usersRepository.Save())
             {

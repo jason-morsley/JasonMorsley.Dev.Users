@@ -17,7 +17,7 @@
             <param name="userId">The id of the user you want to get</param>
             <returns>A User with id, firstname and lastname fields</returns>
         </member>
-        <member name="M:Users.API.Controllers.UsersController.Post(Users.API.Entities.User)">
+        <member name="M:Users.API.Controllers.UsersController.Post(Users.API.Models.UserForCreationDto)">
             <summary>
             Adds a user given correct input
             </summary>
