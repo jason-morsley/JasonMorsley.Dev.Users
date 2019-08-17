@@ -50,9 +50,9 @@ namespace Users.API
             services.AddDbContext<UserContext>(opt => opt.UseSqlServer(connectionString));
 
             //Registering the repo
-            //services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
 
-            services.AddSingleton<IUsersRepository, UsersRepository>();
+            //services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddAutoMapper(typeof(Startup));
 
             services.AddSwaggerGen(setupAction =>
