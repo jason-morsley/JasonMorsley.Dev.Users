@@ -46,11 +46,11 @@ namespace Users.API
 
             //Here we register the DBContext, and get a connection string from app settings.
             //It is only to be used during development as in production we will store it in the environment variable
-            var connectionString = Configuration["connectionStrings:userDBContextString"];
+            var connectionString = Configuration["connectionStrings:userDBConnectionString"];
             services.AddDbContext<UserContext>(opt => opt.UseSqlServer(connectionString));
 
             //Registering the repo
-            services.AddScoped<IUsersRepository, UsersRepository>();
+            //services.AddScoped<IUsersRepository, UsersRepository>();
 
             services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddAutoMapper(typeof(Startup));
@@ -83,7 +83,8 @@ namespace Users.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) //,UserContext userContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
+            ILoggerFactory loggerFactory, UserContext userContext)
         {
             if (env.IsDevelopment())
             {
@@ -129,6 +130,8 @@ namespace Users.API
                 setupAction.SwaggerEndpoint("/swagger/UserOpenAPISpecification/swagger.json", "User API");
                 setupAction.RoutePrefix = "";
             });
+
+            //userContext.EnsureSeedDataForContext();
 
             app.UseMvc();
         }

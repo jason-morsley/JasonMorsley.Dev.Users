@@ -15,7 +15,10 @@ namespace Users.API.Migrations
                     FirstName = table.Column<string>(maxLength: 50, nullable: false),
                     LastName = table.Column<string>(maxLength: 50, nullable: false)
                     //DateOfBirth = table.Column<DateTimeOffset>(nullable: false),
-
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
         }
 

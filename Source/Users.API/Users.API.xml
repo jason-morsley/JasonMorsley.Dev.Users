@@ -24,6 +24,20 @@
             <param name="user">A user populated with required details; firstname and lastname.</param>
             <returns>201 Created</returns>
         </member>
+        <member name="M:Users.API.Controllers.UsersController.Put(System.Int32,Users.API.Entities.User)">
+            <summary>
+            Not implemented yet.
+            </summary>
+            <param name="id"></param>
+            <param name="user"></param>
+        </member>
+        <member name="M:Users.API.Controllers.UsersController.Delete(System.Guid)">
+            <summary>
+            Deletes a user by their id
+            </summary>
+            <param name="Id">The id of the user you wish to delete</param>
+            <returns>204 NoContent</returns>
+        </member>
         <member name="T:Users.API.Entities.User">
             <summary>
             A user with Id, FirstName and LastName fields

@@ -33,12 +33,12 @@ namespace Users.API.Services
 
         public User Get(Guid userId)
         {
-            return _users.Users.FirstOrDefault(x => x.Id == userId);
+            return _users.Users.First(x => x.Id == userId);
         }
 
         public void Add(User user)
         {
-            user.Id = Guid.NewGuid();
+            //user.Id = Guid.NewGuid();
             _users.Users.Add(user);
         }
 

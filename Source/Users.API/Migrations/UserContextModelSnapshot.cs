@@ -6,7 +6,7 @@ using Users.API.Entities;
 
 namespace Users.API.Migrations
 {
-    [DbContext(typeof(User))]
+    [DbContext(typeof(UserContext))]
     partial class UserContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -21,12 +21,12 @@ namespace Users.API.Migrations
                     .ValueGeneratedOnAdd();
 
                 b.Property<string>("FirstName")
-                    .IsRequired()
-                    .HasAnnotation("MaxLength", 50);
+                    .IsRequired();
+                    //.HasAnnotation("MaxLength", 50);
 
                 b.Property<string>("LastName")
-                    .IsRequired()
-                    .HasAnnotation("MaxLength", 50);
+                    .IsRequired();
+                    //.HasAnnotation("MaxLength", 50);
 
                 //b.Property<DateTimeOffset>("DateOfBirth");
 
