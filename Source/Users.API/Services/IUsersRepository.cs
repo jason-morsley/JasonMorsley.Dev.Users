@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Users.API.Entities;
+using Users.API.Helpers;
 
 namespace Users.API.Services
 {
     public interface IUsersRepository
     {
-        IEnumerable<User> GetAll();
+        PagedList<User> GetAll(UsersResourceParameters usersResourceParameters);
+        //IEnumerable<User> GetAll();
         User Get(Guid userId);
         //IEnumerable<User> GetUsers(IEnumerable<Guid> userIds);
         void Add(User user);

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using Users.API.Entities;
 using Users.API.Models;
 using Users.API.Services;
@@ -42,7 +45,11 @@ namespace Users.API
                 setupAction.ReturnHttpNotAcceptable = true;
                 setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
                 //setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
-            });
+            })
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                });
 
             //Here we register the DBContext, and get a connection string from app settings.
             //It is only to be used during development as in production we will store it in the environment variable
@@ -51,6 +58,15 @@ namespace Users.API
 
             //Registering the repo
             services.AddScoped<IUsersRepository, UsersRepository>();
+
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+            services.AddScoped<IUrlHelper>(implementationFactory =>
+            {
+                var actionContext = implementationFactory.GetService<IActionContextAccessor>()
+                    .ActionContext;
+                return new UrlHelper(actionContext);
+            });
 
             //services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddAutoMapper(typeof(Startup));
@@ -119,6 +135,8 @@ namespace Users.API
                         $"{src.FirstName} {src.LastName}"));
 
                 cfg.CreateMap<UserForCreationDto, User>();
+                
+                cfg.CreateMap<UserDto, User>();
             });
 
             app.UseHttpsRedirection();

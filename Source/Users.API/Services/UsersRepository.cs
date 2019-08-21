@@ -5,16 +5,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using Users.API.Entities;
+using Users.API.Helpers;
 
 namespace Users.API.Services
 {
     public class UsersRepository : IUsersRepository
     {
-        private UserContext _users;
+        private UserContext _context;
 
         public UsersRepository(UserContext context)
         {
-            _users = context;
+            _context = context;
         }
 
         //private IList<User> _users;
@@ -23,28 +24,39 @@ namespace Users.API.Services
         //    _users = new List<User>();
         //}
 
-        public IEnumerable<User> GetAll()
+        public PagedList<User> GetAll(
+            UsersResourceParameters usersResourceParameters)
         {
-            return _users.Users
-                .OrderBy(x => x.FirstName)
-                .ThenBy(x => x.LastName)
-                .ToList();
+            var collectionBeforePaging =
+                _context.Users
+                .OrderBy(a => a.FirstName)
+                .ThenBy(a => a.LastName)
+                .AsQueryable();
+
+            return PagedList<User>.Create(collectionBeforePaging,
+                usersResourceParameters.PageNumber,
+                usersResourceParameters.PageSize);
+
+            //return _users.Users
+            //    .OrderBy(x => x.FirstName)
+            //    .ThenBy(x => x.LastName)
+            //    .ToList();
         }
 
         public User Get(Guid userId)
         {
-            return _users.Users.First(x => x.Id == userId);
+            return _context.Users.FirstOrDefault(x => x.Id == userId);
         }
 
         public void Add(User user)
         {
             //user.Id = Guid.NewGuid();
-            _users.Users.Add(user);
+            _context.Users.Add(user);
         }
 
         public void Delete(User user)
         {
-            _users.Users.Remove(user);
+            _context.Users.Remove(user);
         }
 
         public void Update(User user)
@@ -54,12 +66,12 @@ namespace Users.API.Services
 
         public bool UserExists(Guid userId)
         {
-            return _users.Users.Any(a => a.Id == userId);
+            return _context.Users.Any(a => a.Id == userId);
         }
 
         public bool Save()
         {
-            return (_users.SaveChanges() >= 0);
+            return (_context.SaveChanges() >= 0);
         }
     }
 }

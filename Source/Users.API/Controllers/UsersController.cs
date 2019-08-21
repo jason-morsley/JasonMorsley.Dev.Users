@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Users.API.Entities;
+using Users.API.Helpers;
 using Users.API.Models;
 using Users.API.Services;
 
@@ -13,12 +14,16 @@ namespace Users.API.Controllers
     //[ApiController]
     public class UsersController : Controller
     {
-        private readonly IUsersRepository _usersRepository;
-        private readonly IMapper _mapper;
+        private IUsersRepository _usersRepository;
+        private IUrlHelper _urlHelper;
+        private IMapper _mapper;
 
-        public UsersController(IUsersRepository usersRepository, IMapper mapper)
+        public UsersController(IUsersRepository usersRepository,
+            IMapper mapper,
+            IUrlHelper urlHelper)
         {
             _usersRepository = usersRepository;
+            _urlHelper = urlHelper;
             _mapper = mapper;
         }
 
@@ -26,13 +31,71 @@ namespace Users.API.Controllers
         /// Gets all users
         /// </summary>
         /// <returns>All users with an id, firstname and lastname fields</returns>
-        [HttpGet]
-        public ActionResult Get()
+        [HttpGet(Name = "GetUsers")]
+        public ActionResult GetAll(UsersResourceParameters usersResourceParameters)
         {
-            var usersFromRepo = _usersRepository.GetAll();
+            var usersFromRepo = _usersRepository.GetAll(usersResourceParameters);
+
+            var previousPageLink = usersFromRepo.HasPrevious ? 
+                CreateUsersResourceUri(usersResourceParameters,
+                ResourceUriType.PreviousPage) : null;
+
+            var nextPageLink = usersFromRepo.HasNext ?
+                CreateUsersResourceUri(usersResourceParameters, 
+                ResourceUriType.NextPage) : null;
+
+            var paginationMetaData = new
+            {
+                totalCount = usersFromRepo.TotalCount,
+                pageSize = usersFromRepo.PageSize,
+                currentPage = usersFromRepo.CurrentPage,
+                totalPages = usersFromRepo.TotalPages,
+                previousPageLink = previousPageLink,
+                nextPageLink = nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination",
+                Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetaData));
+
+
+            //var usersFromRepo = _usersRepository.GetAll();
 
             var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
             return Ok(users);
+        }
+
+        private string CreateUsersResourceUri(
+            UsersResourceParameters usersResourceParameters,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return _urlHelper.Link("GetUsers",
+                        new
+                        {
+                            searchQuery = usersResourceParameters.SearchQuery,
+                            pageNumber = usersResourceParameters.PageNumber - 1,
+                            pageSize = usersResourceParameters.PageSize
+                        });
+                case ResourceUriType.NextPage:
+                    return _urlHelper.Link("GetUsers",
+                        new
+                        {
+                            searchQuery = usersResourceParameters.SearchQuery,
+                            pageNumber = usersResourceParameters.PageNumber + 1,
+                            pageSize = usersResourceParameters.PageSize
+                        });
+
+                default:
+                    return _urlHelper.Link("GetUsers",
+                        new
+                        {
+                            searchQuery = usersResourceParameters.SearchQuery,
+                            pageNumber = usersResourceParameters.PageNumber,
+                            pageSize = usersResourceParameters.PageSize
+                        });
+            }
         }
 
         /// <summary>
@@ -43,8 +106,8 @@ namespace Users.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("{id}", Name = "GetUser")]
-        public ActionResult Get(Guid userId)
+        [HttpGet("{userId}", Name = "GetUser")]
+        public ActionResult Get([FromRoute]Guid userId)
         {
             var userFromRepo = _usersRepository.Get(userId);
 
@@ -53,7 +116,7 @@ namespace Users.API.Controllers
                 return NotFound();
             }
 
-            var user = _mapper.Map<IEnumerable<UserDto>>(userFromRepo);
+            var user = _mapper.Map<UserDto>(userFromRepo);
             return Ok(user);
         }
 
@@ -85,25 +148,27 @@ namespace Users.API.Controllers
                 new {Id = userToReturn.Id},
                 userToReturn);
         }
+
         /// <summary>
         /// Not implemented yet.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="userId"></param>
         /// <param name="user"></param>
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] User user)
+        [HttpPut("{userId}")]
+        public void Put([FromRoute]Guid userId, [FromBody] User user)
         {
             _usersRepository.Update(user);
         }
+
         /// <summary>
-        /// Deletes a user by their id
+        /// Deletes a user by their userId
         /// </summary>
-        /// <param name="Id">The id of the user you wish to delete</param>
+        /// <param name="userId">The id of the user you wish to delete</param>
         /// <returns>204 NoContent</returns>
-        [HttpDelete("{id}")]
-        public ActionResult Delete(Guid Id)
+        [HttpDelete("{userId}")]
+        public ActionResult Delete([FromRoute]Guid userId)
         {
-            var userFromRepo = _usersRepository.Get(Id);
+            var userFromRepo = _usersRepository.Get(userId);
 
             if (userFromRepo == null)
             {
@@ -114,7 +179,7 @@ namespace Users.API.Controllers
 
             if (!_usersRepository.Save())
             {
-                throw new Exception($"Deleting user {Id} failed on save");
+                throw new Exception($"Deleting user {userId} failed on save");
             }
 
             return NoContent();

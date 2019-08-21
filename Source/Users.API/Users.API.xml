@@ -4,7 +4,7 @@
         <name>Users.API</name>
     </assembly>
     <members>
-        <member name="M:Users.API.Controllers.UsersController.Get">
+        <member name="M:Users.API.Controllers.UsersController.GetAll(Users.API.Helpers.UsersResourceParameters)">
             <summary>
             Gets all users
             </summary>
@@ -24,18 +24,18 @@
             <param name="user">A user populated with required details; firstname and lastname.</param>
             <returns>201 Created</returns>
         </member>
-        <member name="M:Users.API.Controllers.UsersController.Put(System.Int32,Users.API.Entities.User)">
+        <member name="M:Users.API.Controllers.UsersController.Put(System.Guid,Users.API.Entities.User)">
             <summary>
             Not implemented yet.
             </summary>
-            <param name="id"></param>
+            <param name="userId"></param>
             <param name="user"></param>
         </member>
         <member name="M:Users.API.Controllers.UsersController.Delete(System.Guid)">
             <summary>
-            Deletes a user by their id
+            Deletes a user by their userId
             </summary>
-            <param name="Id">The id of the user you wish to delete</param>
+            <param name="userId">The id of the user you wish to delete</param>
             <returns>204 NoContent</returns>
         </member>
         <member name="T:Users.API.Entities.User">
