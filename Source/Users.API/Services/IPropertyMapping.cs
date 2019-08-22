@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Users.API.Helpers
+namespace Users.API.Services
 {
-    public enum ResourceUriType
+    public interface IPropertyMapping
     {
-        PreviousPage,
-        NextPage,
-        Current
     }
 }

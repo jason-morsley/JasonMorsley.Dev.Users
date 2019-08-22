@@ -10,11 +10,12 @@
             </summary>
             <returns>All users with an id, firstname and lastname fields</returns>
         </member>
-        <member name="M:Users.API.Controllers.UsersController.Get(System.Guid)">
+        <member name="M:Users.API.Controllers.UsersController.Get(System.Guid,System.String)">
             <summary>
             Get a user by their id
             </summary>
             <param name="userId">The id of the user you want to get</param>
+            <param name="fields">a list of resource fields you want</param>
             <returns>A User with id, firstname and lastname fields</returns>
         </member>
         <member name="M:Users.API.Controllers.UsersController.Post(Users.API.Models.UserForCreationDto)">

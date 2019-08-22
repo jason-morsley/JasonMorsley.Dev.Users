@@ -68,6 +68,10 @@ namespace Users.API
                 return new UrlHelper(actionContext);
             });
 
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+
+            services.AddTransient<ITypeHelperService, TypeHelperService>();
+
             //services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddAutoMapper(typeof(Startup));
 
