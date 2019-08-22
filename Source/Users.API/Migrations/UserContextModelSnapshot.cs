@@ -21,12 +21,11 @@ namespace Users.API.Migrations
 
             modelBuilder.Entity("Users.API.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<Guid>("Id").ValueGeneratedOnAdd();
 
-                    b.Property<string>("FirstName");
+                    b.Property<string>("FirstName").IsRequired();
 
-                    b.Property<string>("LastName");
+                    b.Property<string>("LastName").IsRequired();
 
                     b.HasKey("Id");
 

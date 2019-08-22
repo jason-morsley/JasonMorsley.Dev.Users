@@ -59,6 +59,21 @@
             The last name of the user
             </summary>
         </member>
+        <member name="P:Users.API.Helpers.UsersResourceParameters.SearchQuery">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Users.API.Helpers.UsersResourceParameters.OrderBy">
+            <summary>
+            The way in which you wish to sort the result, eg by Id, name.
+            </summary>
+        </member>
+        <member name="P:Users.API.Helpers.UsersResourceParameters.Fields">
+            <summary>
+            Search fields you wish to include, eg name, id.
+            </summary>
+        </member>
         <member name="P:Users.API.Models.UserDto.Id">
             <summary>
             The id of the user

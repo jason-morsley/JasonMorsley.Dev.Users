@@ -31,7 +31,6 @@ namespace Users.API.Controllers
             _propertyMappingService = propertyMappingService;
             _mapper = mapper;
             _typeHelperService = typeHelperService;
-
         }
 
         /// <summary>
@@ -55,13 +54,13 @@ namespace Users.API.Controllers
 
             var usersFromRepo = _usersRepository.GetAll(usersResourceParameters);
 
-            var previousPageLink = usersFromRepo.HasPrevious ?
-                CreateUsersResourceUri(usersResourceParameters,
-                    ResourceUriType.PreviousPage) : null;
+            //var previousPageLink = usersFromRepo.HasPrevious ?
+            //    CreateUsersResourceUri(usersResourceParameters,
+            //        ResourceUriType.PreviousPage) : null;
 
-            var nextPageLink = usersFromRepo.HasNext ?
-                CreateUsersResourceUri(usersResourceParameters,
-                    ResourceUriType.NextPage) : null;
+            //var nextPageLink = usersFromRepo.HasNext ?
+            //    CreateUsersResourceUri(usersResourceParameters,
+            //        ResourceUriType.NextPage) : null;
 
             var paginationMetaData = new //https://i.imgur.com/QTQgOKu.png
             {
@@ -69,36 +68,38 @@ namespace Users.API.Controllers
                 pageSize = usersFromRepo.PageSize,
                 currentPage = usersFromRepo.CurrentPage,
                 totalPages = usersFromRepo.TotalPages,
-                nextPageLink = nextPageLink,
-                previousPageLink = previousPageLink
+                //nextPageLink = nextPageLink,
+                //previousPageLink = previousPageLink
             };
 
             Response.Headers.Add("X-Pagination",
                 Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetaData));
 
-            //var links = CreateLinksForUsers(usersResourceParameters, usersFromRepo.HasNext, usersFromRepo.HasPrevious);
-
-            //var shapedUsers = users.ShapeData(usersResourceParameters.Fields);
-
-            //var shapedUsersWithLinks = shapedUsers.Select(user =>
-            //{
-            //    var userAsDictionary = user as IDictionary<string, object>;
-            //    var userLinks = CreateLinksForUser((Guid) userAsDictionary["Id"], usersResourceParameters.Fields);
-            //     userAsDictionary.Add("links", userLinks);
-
-            //    return userAsDictionary;
-            //});
-
-            //var linkedCollectionResource = new
-            //{
-            //    value = shapedUsersWithLinks,
-            //    links = links
-            //};
-
-            //return Ok(linkedCollectionResource);
+            var links = CreateLinksForUsers(usersResourceParameters, usersFromRepo.HasNext, usersFromRepo.HasPrevious);
 
             var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
-            return Ok(users.ShapeData(usersResourceParameters.Fields));
+
+            var shapedUsers = users.ShapeData(usersResourceParameters.Fields);
+
+            var shapedUsersWithLinks = shapedUsers.Select(user =>
+            {
+                var userAsDictionary = user as IDictionary<string, object>;
+                var userLinks = CreateLinksForUser((Guid)userAsDictionary["Id"], usersResourceParameters.Fields);
+                userAsDictionary.Add("links", userLinks);
+
+                return userAsDictionary;
+            });
+
+            var linkedCollectionResource = new
+            {
+                value = shapedUsersWithLinks,
+                links = links
+            };
+
+            return Ok(linkedCollectionResource);
+
+            //var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
+            //return Ok(users.ShapeData(usersResourceParameters.Fields));
         }
 
         private string CreateUsersResourceUri(
@@ -243,32 +244,32 @@ namespace Users.API.Controllers
             return NoContent();
         }
 
-        //private IEnumerable<LinkDto> CreateLinksForUser(Guid id, string fields)
-        //{
-        //    var links = new List<LinkDto>();
+        private IEnumerable<LinkDto> CreateLinksForUser(Guid id, string fields)
+        {
+            var links = new List<LinkDto>();
 
-        //    if (string.IsNullOrWhiteSpace(fields))
-        //    {
-        //        links.Add(
-        //            new LinkDto(_urlHelper.Link("GetUser", new { id = id }),
-        //                "self",
-        //                "GET"));
-        //    }
-        //    else
-        //    {
-        //        links.Add(
-        //            new LinkDto(_urlHelper.Link("GetUser", new { id = id, fields = fields }),
-        //                "self",
-        //                "GET"));
-        //    }
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(
+                    new LinkDto(_urlHelper.Link("GetUser", new { id = id }),
+                        "self",
+                        "GET"));
+            }
+            else
+            {
+                links.Add(
+                    new LinkDto(_urlHelper.Link("GetUser", new { id = id, fields = fields }),
+                        "self",
+                        "GET"));
+            }
 
-        //    links.Add(
-        //        new LinkDto(_urlHelper.Link("DeleteUser", new { id = id }),
-        //            "delete_user",
-        //            "DELETE"));
+            links.Add(
+                new LinkDto(_urlHelper.Link("DeleteUser", new { id = id }),
+                    "delete_user",
+                    "DELETE"));
 
-        //    return links;
-        //}
+            return links;
+        }
 
         private IEnumerable<LinkDto> CreateLinksForUsers(
             UsersResourceParameters usersResourceParameters,

@@ -47,8 +47,8 @@ namespace Users.API.Services
                     .Trim().ToLowerInvariant();
 
                 collectionBeforePaging = collectionBeforePaging
-                    .Where(a => a.FirstName.ToLowerInvariant().Contains(searchQueryForWhereClause) 
-                             || a.LastName.ToLowerInvariant().Contains(searchQueryForWhereClause));
+                    .Where(a => a.FirstName.ToLowerInvariant().Contains(searchQueryForWhereClause) ||
+                                a.LastName.ToLowerInvariant().Contains(searchQueryForWhereClause));
             }
 
             return PagedList<User>.Create(collectionBeforePaging,
