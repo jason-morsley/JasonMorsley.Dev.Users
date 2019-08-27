@@ -12,13 +12,13 @@
             set => _pageSize = (value > maxPageSize) ? maxPageSize : value;
         }
         /// <summary>
-        /// 
+        /// Search for specific names or ids
         /// </summary>
         public string SearchQuery { get; set; }
         /// <summary>
         /// The way in which you wish to sort the result, eg by Id, name.
         /// </summary>
-        public string OrderBy { get; set; } = "Id";
+        public string OrderBy { get; set; } = "Name";
         /// <summary>
         /// Search fields you wish to include, eg name, id.
         /// </summary>

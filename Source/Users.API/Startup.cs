@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using AspNetCoreRateLimit;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -38,6 +39,7 @@ namespace Users.API
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        [Obsolete]
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc(setupAction =>
@@ -45,6 +47,27 @@ namespace Users.API
                 setupAction.ReturnHttpNotAcceptable = true;
                 setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
                 //setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
+
+                var xmlDataContractSerializerInputFormatter =
+                    new XmlDataContractSerializerInputFormatter();
+                xmlDataContractSerializerInputFormatter.SupportedMediaTypes
+                    .Add("application/jmd.jasonmorsleydev.user.full+xml");
+                setupAction.InputFormatters.Add(xmlDataContractSerializerInputFormatter);
+                
+                var jsonInputFormatter = setupAction.InputFormatters.OfType<JsonInputFormatter>().FirstOrDefault();
+
+                if (jsonInputFormatter != null)
+                {
+                    jsonInputFormatter.SupportedMediaTypes.Add("application/jmd.jasonmorsleydev.user.full+json");
+                }
+
+                var jsonOutputFormatter = setupAction.OutputFormatters.OfType<JsonOutputFormatter>().FirstOrDefault();
+
+                if (jsonOutputFormatter != null)
+                {
+                    jsonOutputFormatter.SupportedMediaTypes.Add("application/jmd.jasonmorsleydev.hateoas+json");
+                }
+                
             })
                 .AddJsonOptions(options =>
                 {
@@ -64,13 +87,42 @@ namespace Users.API
             services.AddScoped<IUrlHelper>(implementationFactory =>
             {
                 var actionContext = implementationFactory.GetService<IActionContextAccessor>()
-                    .ActionContext;
+                .ActionContext;
                 return new UrlHelper(actionContext);
             });
 
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
 
             services.AddTransient<ITypeHelperService, TypeHelperService>();
+
+            services.AddHttpCacheHeaders((expirationModelOptions) => { expirationModelOptions.MaxAge = 600; },
+                (validationModelOptions) => { validationModelOptions.MustRevalidate = true; });
+
+            services.AddResponseCaching();
+
+            services.AddMemoryCache();
+
+            services.Configure<IpRateLimitOptions>((options) =>
+            {
+                options.GeneralRules = new List<RateLimitRule>()
+                {
+                    new RateLimitRule()
+                    {
+                        Endpoint = "*",
+                        Limit = 1000,
+                        Period = "5m"
+                    },
+                    new RateLimitRule()
+                    {
+                        Endpoint = "*",
+                        Limit = 200,
+                        Period = "10s"
+                    }
+                };
+            });
+
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
 
             //services.AddSingleton<IUsersRepository, UsersRepository>();
             services.AddAutoMapper(typeof(Startup));
@@ -153,7 +205,11 @@ namespace Users.API
                 setupAction.RoutePrefix = "";
             });
 
-            //userContext.EnsureSeedDataForContext();
+            userContext.EnsureSeedDataForContext(); //Clears and fills database
+
+            app.UseResponseCaching();
+
+            app.UseHttpCacheHeaders();
 
             app.UseMvc();
         }

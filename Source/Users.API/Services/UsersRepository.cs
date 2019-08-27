@@ -29,7 +29,7 @@ namespace Users.API.Services
         //    _users = new List<User>();
         //}
 
-        public PagedList<User> GetAll(
+        public PagedList<User> GetUsers(
             UsersResourceParameters usersResourceParameters)
         {
             //var collectionBeforePaging = _context.Users
@@ -56,23 +56,23 @@ namespace Users.API.Services
                 usersResourceParameters.PageSize);
         }
 
-        public User Get(Guid userId)
+        public User GetUser(Guid userId)
         {
             return _context.Users.FirstOrDefault(x => x.Id == userId);
         }
 
-        public void Add(User user)
+        public void AddUser(User user)
         {
             //user.Id = Guid.NewGuid();
             _context.Users.Add(user);
         }
 
-        public void Delete(User user)
+        public void DeleteUser(User user)
         {
             _context.Users.Remove(user);
         }
 
-        public void Update(User user)
+        public void UpdateUser(User user)
         {
             //no code in this implementation
         }

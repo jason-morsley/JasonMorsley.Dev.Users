@@ -9,13 +9,11 @@ namespace Users.API.Helpers
 {
     public static class IEnumerableExtensions
     {
-        public static IEnumerable<ExpandoObject> ShapeData<TSource>(
-            this IEnumerable<TSource> source,
-            string fields) 
+        public static IEnumerable<ExpandoObject> ShapeData<TSource>(this IEnumerable<TSource> source, string fields)
         {
             if (source == null)
             {
-                throw new ArgumentNullException(nameof(source));
+                throw new ArgumentNullException("source");
             }
 
             // create a list to hold our ExpandoObjects

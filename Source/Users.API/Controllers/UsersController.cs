@@ -36,12 +36,15 @@ namespace Users.API.Controllers
         /// <summary>
         /// Gets all users
         /// </summary>
+        /// <param name="mediaType">The media type you wish the response to be returned as</param>
+        /// <param name="usersResourceParameters">A resource object containing information about page size and search queries.</param>
         /// <returns>All users with an id, firstname and lastname fields</returns>
         [HttpGet(Name = "GetUsers")]
-        public ActionResult GetAll(UsersResourceParameters usersResourceParameters)
+        [HttpHead]
+        public IActionResult GetUsers(UsersResourceParameters usersResourceParameters, [FromHeader(Name = "Accept")] string mediaType) //For some reason Swagger won't load values into mediaType if FromHeader is used
         {
             if (!_propertyMappingService.ValidMappingExistsFor<UserDto, User>
-                (usersResourceParameters.OrderBy))
+               (usersResourceParameters.OrderBy))
             {
                 return BadRequest();
             }
@@ -52,54 +55,70 @@ namespace Users.API.Controllers
                 return BadRequest();
             }
 
-            var usersFromRepo = _usersRepository.GetAll(usersResourceParameters);
-
-            //var previousPageLink = usersFromRepo.HasPrevious ?
-            //    CreateUsersResourceUri(usersResourceParameters,
-            //        ResourceUriType.PreviousPage) : null;
-
-            //var nextPageLink = usersFromRepo.HasNext ?
-            //    CreateUsersResourceUri(usersResourceParameters,
-            //        ResourceUriType.NextPage) : null;
-
-            var paginationMetaData = new //https://i.imgur.com/QTQgOKu.png
-            {
-                totalCount = usersFromRepo.TotalCount,
-                pageSize = usersFromRepo.PageSize,
-                currentPage = usersFromRepo.CurrentPage,
-                totalPages = usersFromRepo.TotalPages,
-                //nextPageLink = nextPageLink,
-                //previousPageLink = previousPageLink
-            };
-
-            Response.Headers.Add("X-Pagination",
-                Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetaData));
-
-            var links = CreateLinksForUsers(usersResourceParameters, usersFromRepo.HasNext, usersFromRepo.HasPrevious);
+            var usersFromRepo = _usersRepository.GetUsers(usersResourceParameters);
 
             var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
 
-            var shapedUsers = users.ShapeData(usersResourceParameters.Fields);
-
-            var shapedUsersWithLinks = shapedUsers.Select(user =>
+            if (mediaType == "application/jmd.jasonmorsleydev.hateoas+json")
             {
-                var userAsDictionary = user as IDictionary<string, object>;
-                var userLinks = CreateLinksForUser((Guid)userAsDictionary["Id"], usersResourceParameters.Fields);
-                userAsDictionary.Add("links", userLinks);
+                var paginationMetadata = new
+                {
+                    totalCount = usersFromRepo.TotalCount,
+                    pageSize = usersFromRepo.PageSize,
+                    currentPage = usersFromRepo.CurrentPage,
+                    totalPages = usersFromRepo.TotalPages,
+                };
 
-                return userAsDictionary;
-            });
+                Response.Headers.Add("X-Pagination",
+                    Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
 
-            var linkedCollectionResource = new
+                var links = CreateLinksForUsers(usersResourceParameters, usersFromRepo.HasNext, usersFromRepo.HasPrevious);
+
+                var shapedUsers = users.ShapeData(usersResourceParameters.Fields);
+
+                var shapedUsersWithLinks = shapedUsers.Select(user =>
+                {
+                    var userAsDictionary = user as IDictionary<string, object>;
+                    var userLinks = CreateLinksForUser((Guid)userAsDictionary["Id"], usersResourceParameters.Fields);
+
+                    userAsDictionary.Add("links", userLinks);
+
+                    return userAsDictionary;
+                });
+
+                var linkedCollectionResource = new
+                {
+                    value = shapedUsersWithLinks,
+                    links = links
+                };
+
+                return Ok(linkedCollectionResource);
+            }
+            else
             {
-                value = shapedUsersWithLinks,
-                links = links
-            };
+                var previousPageLink = usersFromRepo.HasPrevious ?
+                    CreateUsersResourceUri(usersResourceParameters,
+                        ResourceUriType.PreviousPage) : null;
 
-            return Ok(linkedCollectionResource);
+                var nextPageLink = usersFromRepo.HasNext ?
+                    CreateUsersResourceUri(usersResourceParameters,
+                        ResourceUriType.NextPage) : null;
 
-            //var users = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
-            //return Ok(users.ShapeData(usersResourceParameters.Fields));
+                var paginationMetadata = new
+                {
+                    previousPageLink = previousPageLink,
+                    nextPageLink = nextPageLink,
+                    totalCount = usersFromRepo.TotalCount,
+                    pageSize = usersFromRepo.PageSize,
+                    currentPage = usersFromRepo.CurrentPage,
+                    totalPages = usersFromRepo.TotalPages
+                };
+
+                Response.Headers.Add("X-Pagination",
+                    Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
+                return Ok(users.ShapeData(usersResourceParameters.Fields));
+            }
         }
 
         private string CreateUsersResourceUri(
@@ -128,7 +147,7 @@ namespace Users.API.Controllers
                             pageNumber = usersResourceParameters.PageNumber + 1,
                             pageSize = usersResourceParameters.PageSize
                         });
-
+                case ResourceUriType.Current:
                 default:
                     return _urlHelper.Link("GetUsers",
                         new
@@ -145,14 +164,14 @@ namespace Users.API.Controllers
         /// <summary>
         /// Get a user by their id
         /// </summary>
-        /// <param name="userId">The id of the user you want to get</param>
+        /// <param name="id">The id of the user you want to get</param>
         /// <param name="fields">a list of resource fields you want</param>
         /// <returns>A User with id, firstname and lastname fields</returns>
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("{userId}", Name = "GetUser")]
-        public ActionResult Get([FromRoute] Guid userId,[FromQuery]string fields)
+        [HttpGet("{id}", Name = "GetUser")]
+        public ActionResult GetUser([FromRoute] Guid id,[FromQuery]string fields)
         {
             if (!_typeHelperService.TypeHasProperties<UserDto>
                 (fields))
@@ -160,7 +179,7 @@ namespace Users.API.Controllers
                 return BadRequest();
             }
 
-            var userFromRepo = _usersRepository.Get(userId);
+            var userFromRepo = _usersRepository.GetUser(id);
 
             if (userFromRepo == null)
             {
@@ -169,12 +188,12 @@ namespace Users.API.Controllers
 
             var user = _mapper.Map<UserDto>(userFromRepo);
 
-            //var links = CreateLinksForUser(userId, fields);
+            var links = CreateLinksForUser(id, fields);
 
             var linkedResourceToReturn = user.ShapeData(fields)
                 as IDictionary<string, object>;
 
-            //linkedResourceToReturn.Add("links", links);
+            linkedResourceToReturn.Add("links", links);
 
             return Ok(linkedResourceToReturn);
         }
@@ -185,7 +204,9 @@ namespace Users.API.Controllers
         /// <param name="user">A user populated with required details; firstname and lastname.</param>
         /// <returns>201 Created</returns>
         [HttpPost(Name = "CreateUser")]
-        public ActionResult Post([FromBody] UserForCreationDto user)
+        [RequestHeaderMatchesMediaType("Content-Type", new []{ "application/jmd.jasonmorsleydev.user.full+json", "application/jmd.jasonmorsleydev.user.full+xml" })]
+        //[RequestHeaderMatchesMediaType("Accept", new[] {"..."} )]
+        public ActionResult CreateUser([FromBody] UserForCreationDto user)
         {
             if (user == null)
             {
@@ -194,7 +215,7 @@ namespace Users.API.Controllers
 
             var userEntity = _mapper.Map<User>(user);
 
-            _usersRepository.Add(userEntity);
+            _usersRepository.AddUser(userEntity);
 
             if (!_usersRepository.Save())
             {
@@ -203,9 +224,16 @@ namespace Users.API.Controllers
 
             var userToReturn = _mapper.Map<UserDto>(userEntity);
 
+            var links = CreateLinksForUser(userToReturn.Id, null);
+
+            var linkedResourceToReturn = userToReturn.ShapeData(null)
+                as IDictionary<string, object>;
+
+            linkedResourceToReturn.Add("links", links);
+
             return CreatedAtRoute("GetUser",
-                new {Id = userToReturn.Id},
-                userToReturn);
+                new { id = linkedResourceToReturn["Id"] },
+                linkedResourceToReturn);
         }
 
         /// <summary>
@@ -213,10 +241,10 @@ namespace Users.API.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="user"></param>
-        [HttpPut("{userId}")]
+        [HttpPut("{Id}", Name = "UpdateUser")]
         public void Put([FromRoute] Guid userId, [FromBody] User user)
         {
-            _usersRepository.Update(user);
+            _usersRepository.UpdateUser(user);
         }
 
         /// <summary>
@@ -224,17 +252,17 @@ namespace Users.API.Controllers
         /// </summary>
         /// <param name="userId">The id of the user you wish to delete</param>
         /// <returns>204 NoContent</returns>
-        [HttpDelete("{userId}", Name = "DeleteUser")]
-        public ActionResult Delete([FromRoute] Guid userId)
+        [HttpDelete("{Id}", Name = "DeleteUser")]
+        public ActionResult DeleteUser([FromRoute] Guid userId)
         {
-            var userFromRepo = _usersRepository.Get(userId);
+            var userFromRepo = _usersRepository.GetUser(userId);
 
             if (userFromRepo == null)
             {
                 return NotFound();
             }
 
-            _usersRepository.Delete(userFromRepo);
+            _usersRepository.DeleteUser(userFromRepo);
 
             if (!_usersRepository.Save())
             {
@@ -271,9 +299,7 @@ namespace Users.API.Controllers
             return links;
         }
 
-        private IEnumerable<LinkDto> CreateLinksForUsers(
-            UsersResourceParameters usersResourceParameters,
-            bool hasNext, bool hasPrevious)
+        private IEnumerable<LinkDto>CreateLinksForUsers(UsersResourceParameters usersResourceParameters, bool hasNext, bool hasPrevious)
         {
             var links = new List<LinkDto>();
 
@@ -301,5 +327,13 @@ namespace Users.API.Controllers
 
             return links;
         }
+
+        [HttpOptions]
+        public IActionResult GetUsersOptions()
+        {
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST");
+            return Ok();
+        }
+
     }
 }

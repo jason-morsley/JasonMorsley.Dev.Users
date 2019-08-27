@@ -37,6 +37,7 @@ namespace Users.API.Services
             throw new Exception($"Cannot find exact property mapping instance for <{typeof(TSource)},{typeof(TDestination)}");
         }
 
+
         public bool ValidMappingExistsFor<TSource, TDestination>(string fields)
         {
             var propertyMapping = GetPropertyMapping<TSource, TDestination>();
@@ -52,6 +53,7 @@ namespace Users.API.Services
             // run through the fields clauses
             foreach (var field in fieldsAfterSplit)
             {
+                //trim
                 var trimmedField = field.Trim();
 
                 // remove everything after the first " " - if the fields 

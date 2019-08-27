@@ -9,13 +9,13 @@ namespace Users.API.Services
 {
     public interface IUsersRepository
     {
-        PagedList<User> GetAll(UsersResourceParameters usersResourceParameters);
+        PagedList<User> GetUsers(UsersResourceParameters usersResourceParameters);
         //IEnumerable<User> GetAll();
-        User Get(Guid userId);
+        User GetUser(Guid userId);
         //IEnumerable<User> GetUsers(IEnumerable<Guid> userIds);
-        void Add(User user);
-        void Delete(User user);
-        void Update(User user);
+        void AddUser(User user);
+        void DeleteUser(User user);
+        void UpdateUser(User user);
         bool UserExists(Guid userId);
         bool Save();
     }

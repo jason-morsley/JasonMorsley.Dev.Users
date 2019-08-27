@@ -16,6 +16,8 @@ namespace Users.API.Entities
         /// </summary>
         public Guid Id { get; set; }
 
+        //Title
+
         /// <summary>
         /// The first name of the user
         /// </summary>
@@ -29,5 +31,9 @@ namespace Users.API.Entities
         public string LastName { get; set; }
 
         //public DateTimeOffset DateOfBirth { get; set; }
+
+        //email Value object will have IsPrimary and IsConfirmed
+        //phone number Value object
+        //address Value object
     }
 }

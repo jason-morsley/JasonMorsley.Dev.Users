@@ -4,21 +4,30 @@
         <name>Users.API</name>
     </assembly>
     <members>
-        <member name="M:Users.API.Controllers.UsersController.GetAll(Users.API.Helpers.UsersResourceParameters)">
+        <member name="M:Users.API.Controllers.RootContoller.GetRoot(System.String)">
+            <summary>
+            Creates links to basic information
+            </summary>
+            <param name="mediaType">The media type to return</param>
+            <returns></returns>
+        </member>
+        <member name="M:Users.API.Controllers.UsersController.GetUsers(Users.API.Helpers.UsersResourceParameters,System.String)">
             <summary>
             Gets all users
             </summary>
+            <param name="mediaType">The media type you wish the response to be returned as</param>
+            <param name="usersResourceParameters">A resource object containing information about page size and search queries.</param>
             <returns>All users with an id, firstname and lastname fields</returns>
         </member>
-        <member name="M:Users.API.Controllers.UsersController.Get(System.Guid,System.String)">
+        <member name="M:Users.API.Controllers.UsersController.GetUser(System.Guid,System.String)">
             <summary>
             Get a user by their id
             </summary>
-            <param name="userId">The id of the user you want to get</param>
+            <param name="id">The id of the user you want to get</param>
             <param name="fields">a list of resource fields you want</param>
             <returns>A User with id, firstname and lastname fields</returns>
         </member>
-        <member name="M:Users.API.Controllers.UsersController.Post(Users.API.Models.UserForCreationDto)">
+        <member name="M:Users.API.Controllers.UsersController.CreateUser(Users.API.Models.UserForCreationDto)">
             <summary>
             Adds a user given correct input
             </summary>
@@ -32,7 +41,7 @@
             <param name="userId"></param>
             <param name="user"></param>
         </member>
-        <member name="M:Users.API.Controllers.UsersController.Delete(System.Guid)">
+        <member name="M:Users.API.Controllers.UsersController.DeleteUser(System.Guid)">
             <summary>
             Deletes a user by their userId
             </summary>
@@ -61,7 +70,7 @@
         </member>
         <member name="P:Users.API.Helpers.UsersResourceParameters.SearchQuery">
             <summary>
-            
+            Search for specific names or ids
             </summary>
         </member>
         <member name="P:Users.API.Helpers.UsersResourceParameters.OrderBy">

@@ -17,6 +17,8 @@ namespace Users.API.Profile
                     $"{src.FirstName} {src.LastName}"));
 
             CreateMap<UserForCreationDto, User>();
+
+            CreateMap<UserDto, User>();
         }
     }
 }
