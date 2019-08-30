@@ -18,5 +18,8 @@ namespace Users.API.Services
         void UpdateUser(User user);
         bool UserExists(Guid userId);
         bool Save();
+        Task<User> GetUserAsync(Guid userId);
+        Task<IEnumerable<User>> GetUsersAsync();
+        Task<bool> SaveChangesAsync();
     }
 }

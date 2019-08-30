@@ -67,7 +67,16 @@ namespace Users.API
                 {
                     jsonOutputFormatter.SupportedMediaTypes.Add("application/jmd.jasonmorsleydev.hateoas+json");
                 }
-                
+
+                if (jsonOutputFormatter != null)
+                {
+                    // remove text/json as it isn't the approved media type
+                    // for working with JSON at API level
+                    if (jsonOutputFormatter.SupportedMediaTypes.Contains("text/json"))
+                    {
+                        jsonOutputFormatter.SupportedMediaTypes.Remove("text/json");
+                    }
+                }
             })
                 .AddJsonOptions(options =>
                 {
@@ -86,13 +95,24 @@ namespace Users.API
 
             services.AddScoped<IUrlHelper>(implementationFactory =>
             {
-                var actionContext = implementationFactory.GetService<IActionContextAccessor>()
-                .ActionContext;
+                var actionContext = implementationFactory.GetService<IActionContextAccessor>().ActionContext;
                 return new UrlHelper(actionContext);
             });
 
-            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+            services.AddTransient<IPropertyMappingService>(propertyMappingService =>
+            {
+                var pms = new PropertyMappingService();
+                var dictionary = new Dictionary<string, PropertyMappingValue>();
 
+                dictionary.Add( "Id", new PropertyMappingValue(new List<string>() { "Id" }));
+                dictionary.Add("Name", new PropertyMappingValue(new List<string>() { "FirstName", "LastName" }));
+
+                var propertyMapping = new PropertyMapping<UserDto, User>(dictionary);
+
+                pms.AddPropertyMapping<UserDto, User>(propertyMapping);
+                return pms;
+            });
+            
             services.AddTransient<ITypeHelperService, TypeHelperService>();
 
             services.AddHttpCacheHeaders((expirationModelOptions) => { expirationModelOptions.MaxAge = 600; },
@@ -184,16 +204,18 @@ namespace Users.API
                 });
             }
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<User, UserDto>()
-                    .ForMember(destination => destination.Name, options => options.MapFrom(src =>
-                        $"{src.FirstName} {src.LastName}"));
+            //var config = new MapperConfiguration(cfg =>
+            //{
+            //    cfg.CreateMap<User, UserDto>()
+            //        .ForMember(destination => destination.Name, options => options.MapFrom(src =>
+            //            $"{src.FirstName} {src.LastName}"));
 
-                cfg.CreateMap<UserForCreationDto, User>();
+            //    cfg.CreateMap<User, UserDto>();
                 
-                cfg.CreateMap<UserDto, User>();
-            });
+            //    cfg.CreateMap<UserForCreationDto, User>();
+                
+            //    cfg.CreateMap<UserDto, User>();
+            //});
 
             app.UseHttpsRedirection();
 

@@ -9,7 +9,7 @@ namespace Users.API.Helpers
 {
     public static class IQueryableExtensions
     {
-        public static IQueryable<T> ApplySort<T>(this IQueryable<T> source, string orderBy,
+        public static IQueryable<T> ApplySort<T>(this IQueryable<T> source, string orderBy, 
             Dictionary<string, PropertyMappingValue> mappingDictionary)
         {
             if (source == null)

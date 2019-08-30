@@ -34,12 +34,34 @@
             <param name="user">A user populated with required details; firstname and lastname.</param>
             <returns>201 Created</returns>
         </member>
-        <member name="M:Users.API.Controllers.UsersController.Put(System.Guid,Users.API.Entities.User)">
+        <member name="M:Users.API.Controllers.UsersController.UpdateUser(System.Guid,Users.API.Models.UserForUpdate)">
             <summary>
-            Not implemented yet.
+            Update an user 
             </summary>
-            <param name="userId"></param>
-            <param name="user"></param>
+            <param name="userId">The id of the user to update</param>
+            <param name="userForUpdate">The user with updated values</param>
+            <returns>An ActionResult of type user</returns>
+            <response code="422">Validation error</response>
+        </member>
+        <member name="M:Users.API.Controllers.UsersController.UpdateUser(System.Guid,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{Users.API.Models.UserForUpdate})">
+            <summary>
+            Partially update an user
+            </summary>
+            <param name="userId">The id of the user you want to get</param>
+            <param name="patchDocument">The set of operations to apply to the user</param>
+            <returns>An ActionResult of type user</returns>
+            <remarks>Sample request (this request updates the user's **first name**)  
+            
+            PATCH /user/userId
+            [ 
+                {
+                    "op": "replace", 
+                    "path": "/firstname", 
+                    "value": "new first name" 
+                } 
+            ] 
+            </remarks>
+            <response code="200">Returns the updated user</response>
         </member>
         <member name="M:Users.API.Controllers.UsersController.DeleteUser(System.Guid)">
             <summary>
@@ -92,6 +114,21 @@
             <summary>
             Full name of the user
             </summary>
+        </member>
+        <member name="T:Users.API.Models.UserForUpdate">
+            <summary>
+            An user for update with FirstName and LastName fields
+            </summary>
+        </member>
+        <member name="P:Users.API.Models.UserForUpdate.FirstName">
+            <summary>
+            The first name of the user
+            </summary>
+        </member>
+        <member name="P:Users.API.Models.UserForUpdate.LastName">
+            <summary>
+            The last name of the user
+            </summary>         
         </member>
     </members>
 </doc>

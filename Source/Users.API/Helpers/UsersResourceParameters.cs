@@ -23,6 +23,5 @@
         /// Search fields you wish to include, eg name, id.
         /// </summary>
         public string Fields { get; set; }
-
     }
 }

@@ -8,33 +8,37 @@ namespace Users.API.Services
 {
     public class PropertyMappingService : IPropertyMappingService
     {
-        private Dictionary<string, PropertyMappingValue> _userPropertyMapping =
-           new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
-           {
-               { "Id", new PropertyMappingValue(new List<string>() { "Id" } ) },
-               //{ "Age", new PropertyMappingValue(new List<string>() { "DateOfBirth" } , true) },
-               { "Name", new PropertyMappingValue(new List<string>() { "FirstName", "LastName" }) }
-           };
+        //private Dictionary<string, PropertyMappingValue> _userPropertyMapping =
+        //new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
+        //   {
+        //       { "Id", new PropertyMappingValue(new List<string>() { "Id" } ) },
+        //       //{ "Age", new PropertyMappingValue(new List<string>() { "DateOfBirth" } , true) },
+        //       { "Name", new PropertyMappingValue(new List<string>() { "FirstName", "LastName" }) }
+        //   };
 
-        private IList<IPropertyMapping> propertyMappings = new List<IPropertyMapping>();
+        private IList<IPropertyMapping> _propertyMappings = new List<IPropertyMapping>();
 
         public PropertyMappingService()
         {
-            propertyMappings.Add(new PropertyMapping<UserDto, User>(_userPropertyMapping));
+            //_propertyMappings.Add(new PropertyMapping<UserDto, User>(_userPropertyMapping));
         }
 
-        public Dictionary<string, PropertyMappingValue> GetPropertyMapping
-            <TSource, TDestination>()
+        public void AddPropertyMapping<TSource, TDestination>(IPropertyMapping propertyMapping)
+        {
+            _propertyMappings.Add(propertyMapping);
+        }
+
+        public Dictionary<string, PropertyMappingValue> GetPropertyMapping<TSource, TDestination>()
         {
             // get matching mapping
-            var matchingMapping = propertyMappings.OfType<PropertyMapping<TSource, TDestination>>();
+            var matchingMapping = _propertyMappings.OfType<PropertyMapping<TSource, TDestination>>();
 
             if (matchingMapping.Count() == 1)
             {
                 return matchingMapping.First()._mappingDictionary;
             }
 
-            throw new Exception($"Cannot find exact property mapping instance for <{typeof(TSource)},{typeof(TDestination)}");
+            throw new Exception($"Cannot find exact property mapping instance for {typeof(TSource)},{typeof(TDestination)}");
         }
 
 

@@ -7,7 +7,7 @@ namespace Users.API.Entities
         public UserContext(DbContextOptions<UserContext> options)
             : base(options)
         {
-            Database.Migrate();
+            //Database.Migrate();
         }
 
         public DbSet<User> Users { get; set; }

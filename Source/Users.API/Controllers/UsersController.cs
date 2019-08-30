@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Users.API.Entities;
 using Users.API.Helpers;
@@ -41,7 +43,9 @@ namespace Users.API.Controllers
         /// <returns>All users with an id, firstname and lastname fields</returns>
         [HttpGet(Name = "GetUsers")]
         [HttpHead]
-        public IActionResult GetUsers(UsersResourceParameters usersResourceParameters, [FromHeader(Name = "Accept")] string mediaType) //For some reason Swagger won't load values into mediaType if FromHeader is used
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetUsers(UsersResourceParameters usersResourceParameters, [FromHeader(Name = "Accept")] string mediaType) 
+            //For some reason Swagger won't load values into mediaType if FromHeader is used
         {
             if (!_propertyMappingService.ValidMappingExistsFor<UserDto, User>
                (usersResourceParameters.OrderBy))
@@ -204,7 +208,9 @@ namespace Users.API.Controllers
         /// <param name="user">A user populated with required details; firstname and lastname.</param>
         /// <returns>201 Created</returns>
         [HttpPost(Name = "CreateUser")]
-        [RequestHeaderMatchesMediaType("Content-Type", new []{ "application/jmd.jasonmorsleydev.user.full+json", "application/jmd.jasonmorsleydev.user.full+xml" })]
+        [RequestHeaderMatchesMediaType("Content-Type", new []{
+            "application/jmd.jasonmorsleydev.user.full+json",
+            "application/jmd.jasonmorsleydev.user.full+xml" })]
         //[RequestHeaderMatchesMediaType("Accept", new[] {"..."} )]
         public ActionResult CreateUser([FromBody] UserForCreationDto user)
         {
@@ -237,14 +243,89 @@ namespace Users.API.Controllers
         }
 
         /// <summary>
-        /// Not implemented yet.
+        /// Update an user 
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="user"></param>
-        [HttpPut("{Id}", Name = "UpdateUser")]
-        public void Put([FromRoute] Guid userId, [FromBody] User user)
+        /// <param name="userId">The id of the user to update</param>
+        /// <param name="userForUpdate">The user with updated values</param>
+        /// <returns>An ActionResult of type user</returns>
+        /// <response code="422">Validation error</response>
+        [HttpPut("{userId}")]
+        [Consumes("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Type = typeof(ValidationProblemDetails))]
+        public async Task<ActionResult<User>> UpdateUser(
+            Guid userId,
+            UserForUpdate userForUpdate)
         {
-            _usersRepository.UpdateUser(user);
+            var userFromRepo = await _usersRepository.GetUserAsync(userId);
+            if (userFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(userForUpdate, userFromRepo);
+
+            //// update & save
+            _usersRepository.UpdateUser(userFromRepo);
+            await _usersRepository.SaveChangesAsync();
+
+            // return the user
+            return Ok(_mapper.Map<User>(userFromRepo));
+        }
+
+        /// <summary>
+        /// Partially update an user
+        /// </summary>
+        /// <param name="userId">The id of the user you want to get</param>
+        /// <param name="patchDocument">The set of operations to apply to the user</param>
+        /// <returns>An ActionResult of type user</returns>
+        /// <remarks>Sample request (this request updates the user's **first name**)  
+        /// 
+        /// PATCH /user/userId
+        /// [ 
+        ///     {
+        ///         "op": "replace", 
+        ///         "path": "/firstname", 
+        ///         "value": "new first name" 
+        ///     } 
+        /// ] 
+        /// </remarks>
+        /// <response code="200">Returns the updated user</response>
+        [HttpPatch("{userId}")]
+        [Consumes("application/json-patch+json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity,
+            Type = typeof(ValidationProblemDetails))]
+        public async Task<ActionResult<User>> UpdateUser(Guid userId, JsonPatchDocument<UserForUpdate> patchDocument)
+        {
+            var userFromRepo = await _usersRepository.GetUserAsync(userId);
+            if (userFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            // map to DTO to apply the patch to
+            var user = _mapper.Map<UserForUpdate>(userFromRepo);
+            patchDocument.ApplyTo(user, ModelState);
+
+
+            //Manually check the modelstate as badly formed patch documents are not caught by the APIController
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
+            }
+
+            // map the applied changes on the DTO back into the entity
+            _mapper.Map(user, userFromRepo);
+
+            // update & save
+            _usersRepository.UpdateUser(userFromRepo);
+            await _usersRepository.SaveChangesAsync();
+
+            // return the user
+            return Ok(_mapper.Map<User>(userFromRepo));
         }
 
         /// <summary>

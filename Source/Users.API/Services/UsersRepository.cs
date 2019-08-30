@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyModel;
 using Users.API.Entities;
 using Users.API.Helpers;
 using System.Linq.Dynamic.Core;
+using Microsoft.EntityFrameworkCore;
 using Users.API.Models;
 
 namespace Users.API.Services
@@ -28,14 +29,9 @@ namespace Users.API.Services
         //{
         //    _users = new List<User>();
         //}
-
         public PagedList<User> GetUsers(
             UsersResourceParameters usersResourceParameters)
         {
-            //var collectionBeforePaging = _context.Users
-            //    .OrderBy(a => a.FirstName)
-            //    .ThenBy(a => a.LastName).AsQueryable();
-
             var collectionBeforePaging = 
                 _context.Users.ApplySort(usersResourceParameters.OrderBy,
                 _propertyMappingService.GetPropertyMapping<UserDto, User>());
@@ -63,7 +59,6 @@ namespace Users.API.Services
 
         public void AddUser(User user)
         {
-            //user.Id = Guid.NewGuid();
             _context.Users.Add(user);
         }
 
@@ -74,7 +69,7 @@ namespace Users.API.Services
 
         public void UpdateUser(User user)
         {
-            //no code in this implementation
+            _context.Users.Update(user);
         }
 
         public bool UserExists(Guid userId)
@@ -85,6 +80,28 @@ namespace Users.API.Services
         public bool Save()
         {
             return (_context.SaveChanges() >= 0);
+        }
+
+        public async Task<User> GetUserAsync(Guid userId)
+        {
+            if (userId == Guid.Empty)
+            {
+                throw new ArgumentException(nameof(userId));
+            }
+
+            return await _context.Users
+                .FirstOrDefaultAsync(a => a.Id == userId);
+        }
+
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            // return true if 1 or more entities were changed
+            return (await _context.SaveChangesAsync() > 0);
         }
     }
 }
