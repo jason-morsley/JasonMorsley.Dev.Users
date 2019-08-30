@@ -98,7 +98,7 @@ namespace Users.API.UnitTests
         }
 
         [Fact]
-        public void Given_A_UserRepository_When_I_Call_GetUsers_With_A_SearchQuery_Then_A_List_Of_Users_Should_Be_Returned()
+        public void Given_A_UserRepository_When_I_Call_GetUsers_With_A_SearchQuery_And_PageSize_And_Fields_Then_A_List_Of_Users_Should_Be_Returned()
         {
             // Arrange
             var pmd = new Dictionary<string, PropertyMappingValue>
@@ -111,7 +111,7 @@ namespace Users.API.UnitTests
             _propertyMappingService.AddPropertyMapping<UserDto, User>(pm);
 
             var user = _fixture.Create<User>();
-            var usersResourceParameters = new UsersResourceParameters { SearchQuery = "Name" };
+            var usersResourceParameters = new UsersResourceParameters { SearchQuery = "Name", PageSize = 1, Fields = "Id", PageNumber = 1, OrderBy = "Id"};
 
             var options = new DbContextOptionsBuilder<UserContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -122,12 +122,77 @@ namespace Users.API.UnitTests
 
             context.Add(user);
             context.SaveChanges();
-
+            
             // Act
             var getUsers = usersRepository.GetUsers(usersResourceParameters);
-
+            
             // Assert
             Assert.True(getUsers.Count == 1);
+        }
+
+        [Fact]
+        public void Given_A_UserRepository_When_I_Call_GetUser_Passing_A_userId_Then_A_User_Should_Be_Returned()
+        {
+            // Arrange
+            var user = _fixture.Create<User>();
+            var options = new DbContextOptionsBuilder<UserContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            var context = new UserContext(options);
+            var usersRepository = new UsersRepository(context, _propertyMappingService);
+            context.Add(user);
+            context.SaveChanges();
+            // Act
+
+            var xd = usersRepository.GetUser(user.Id);
+            
+            // Assert
+            Assert.True(xd.Id == user.Id);
+        }
+
+        [Fact]
+        public void Given_A_UserRepository_When_I_Call_UpdateUser_Passing_A_userId_Then_An_Updated_User_Should_Be_Returned()
+        {
+            // Arrange
+            var user = _fixture.Create<User>();
+            var options = new DbContextOptionsBuilder<UserContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            var context = new UserContext(options);
+            var usersRepository = new UsersRepository(context, _propertyMappingService);
+            user.Id = new Guid("76053df4-6687-4353-8937-b45556748abe");
+            context.Add(user);
+            context.SaveChanges();
+
+            user.Id = new Guid("89053df4-6687-4353-8937-b45556748abe");
+
+            // Act
+            usersRepository.UpdateUser(user);
+
+            // Assert
+            Assert.Contains(user.Id.ToString(), "89053df4-6687-4353-8937-b45556748abe");
+        }
+
+        [Fact]
+        public void Given_A_UserRepository_When_I_Call_UserExists_Passing_A_userId_Then_True_Should_Be_Returned_As_It_Exists()
+        {
+            // Arrange
+            var user = _fixture.Create<User>();
+            var options = new DbContextOptionsBuilder<UserContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            var context = new UserContext(options);
+            var usersRepository = new UsersRepository(context, _propertyMappingService);
+            user.Id = new Guid("76053df4-6687-4353-8937-b45556748abe");
+            context.Add(user);
+            context.SaveChanges();
+
+
+            // Act
+            bool userExists = usersRepository.UserExists(user.Id);
+
+            // Assert
+            Assert.True(userExists);
         }
     }
 }

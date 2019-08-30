@@ -26,6 +26,7 @@ namespace Users.API.Helpers
             {
                 return source;
             }
+
             // the orderBy string is separated by ",", so we split it.
             var orderByAfterSplit = orderBy.Split(',');
 

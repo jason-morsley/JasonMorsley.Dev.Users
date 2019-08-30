@@ -82,26 +82,26 @@ namespace Users.API.Services
             return (_context.SaveChanges() >= 0);
         }
 
-        public async Task<User> GetUserAsync(Guid userId)
-        {
-            if (userId == Guid.Empty)
-            {
-                throw new ArgumentException(nameof(userId));
-            }
+        //public async Task<User> GetUserAsync(Guid userId)
+        //{
+        //    //if (userId == Guid.Empty)
+        //    //{
+        //    //    throw new ArgumentException(nameof(userId));
+        //    //}
 
-            return await _context.Users
-                .FirstOrDefaultAsync(a => a.Id == userId);
-        }
+        //    return await _context.Users
+        //        .FirstOrDefaultAsync(a => a.Id == userId);
+        //}
 
-        public async Task<IEnumerable<User>> GetUsersAsync()
-        {
-            return await _context.Users.ToListAsync();
-        }
+        //public async Task<IEnumerable<User>> GetUsersAsync()
+        //{
+        //    return await _context.Users.ToListAsync();
+        //}
 
-        public async Task<bool> SaveChangesAsync()
-        {
-            // return true if 1 or more entities were changed
-            return (await _context.SaveChangesAsync() > 0);
-        }
+        //public async Task<bool> SaveChangesAsync()
+        //{
+        //    // return true if 1 or more entities were changed
+        //    return (await _context.SaveChangesAsync() > 0);
+        //}
     }
 }

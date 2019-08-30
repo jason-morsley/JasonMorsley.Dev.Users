@@ -35,7 +35,6 @@ namespace Users.API.UnitTests
         }
 
         [Fact]
-        //Given_?_When_?_Then_?
         public void Given_A_Non_Valid_Mapping_When_ValidMappingExistsFor_Is_Called_Then_Return_False()
         {
             // Arrange
@@ -60,7 +59,6 @@ namespace Users.API.UnitTests
         }
 
         [Fact]
-        //Given_?_When_?_Then_?
         public void Given_NullOrWhiteSpace_Mapping_When_ValidMappingExistsFor_Is_Called_Then_Return_False()
         {
             var pmd = new Dictionary<string, PropertyMappingValue>
@@ -80,7 +78,6 @@ namespace Users.API.UnitTests
         }
 
         [Fact]
-        //Given_?_When_?_Then_?
         public void Given_Invalid_PropertyMapping_When_GetPropertyMapping_Is_Called_Then_Throws_Exception()
         {
             var pms = new PropertyMappingService();

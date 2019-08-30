@@ -47,14 +47,12 @@ namespace Users.API.Controllers
         public IActionResult GetUsers(UsersResourceParameters usersResourceParameters, [FromHeader(Name = "Accept")] string mediaType) 
             //For some reason Swagger won't load values into mediaType if FromHeader is used
         {
-            if (!_propertyMappingService.ValidMappingExistsFor<UserDto, User>
-               (usersResourceParameters.OrderBy))
+            if (!_propertyMappingService.ValidMappingExistsFor<UserDto, User>(usersResourceParameters.OrderBy))
             {
                 return BadRequest();
             }
 
-            if (!_typeHelperService.TypeHasProperties<UserDto>
-                (usersResourceParameters.Fields))
+            if (!_typeHelperService.TypeHasProperties<UserDto>(usersResourceParameters.Fields))
             {
                 return BadRequest();
             }
@@ -258,7 +256,7 @@ namespace Users.API.Controllers
             Guid userId,
             UserForUpdate userForUpdate)
         {
-            var userFromRepo = await _usersRepository.GetUserAsync(userId);
+            var userFromRepo = _usersRepository.GetUser(userId);
             if (userFromRepo == null)
             {
                 return NotFound();
@@ -268,7 +266,7 @@ namespace Users.API.Controllers
 
             //// update & save
             _usersRepository.UpdateUser(userFromRepo);
-            await _usersRepository.SaveChangesAsync();
+            _usersRepository.Save();
 
             // return the user
             return Ok(_mapper.Map<User>(userFromRepo));
@@ -300,7 +298,7 @@ namespace Users.API.Controllers
             Type = typeof(ValidationProblemDetails))]
         public async Task<ActionResult<User>> UpdateUser(Guid userId, JsonPatchDocument<UserForUpdate> patchDocument)
         {
-            var userFromRepo = await _usersRepository.GetUserAsync(userId);
+            var userFromRepo = _usersRepository.GetUser(userId);
             if (userFromRepo == null)
             {
                 return NotFound();
@@ -322,7 +320,7 @@ namespace Users.API.Controllers
 
             // update & save
             _usersRepository.UpdateUser(userFromRepo);
-            await _usersRepository.SaveChangesAsync();
+            _usersRepository.Save();
 
             // return the user
             return Ok(_mapper.Map<User>(userFromRepo));
