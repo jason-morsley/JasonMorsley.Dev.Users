@@ -14,12 +14,12 @@ namespace Users.API.Helpers
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             if (mappingDictionary == null)
             {
-                throw new ArgumentNullException("mappingDictionary");
+                throw new ArgumentNullException(nameof(mappingDictionary));
             }
 
             if (string.IsNullOrWhiteSpace(orderBy))

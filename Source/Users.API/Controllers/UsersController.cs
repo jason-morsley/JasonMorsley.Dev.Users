@@ -252,7 +252,7 @@ namespace Users.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Type = typeof(ValidationProblemDetails))]
-        public async Task<ActionResult<User>> UpdateUser(
+        public ActionResult<User> UpdateUser(
             Guid userId,
             UserForUpdate userForUpdate)
         {
@@ -296,7 +296,7 @@ namespace Users.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity,
             Type = typeof(ValidationProblemDetails))]
-        public async Task<ActionResult<User>> UpdateUser(Guid userId, JsonPatchDocument<UserForUpdate> patchDocument)
+        public ActionResult<User> UpdateUser(Guid userId, JsonPatchDocument<UserForUpdate> patchDocument)
         {
             var userFromRepo = _usersRepository.GetUser(userId);
             if (userFromRepo == null)

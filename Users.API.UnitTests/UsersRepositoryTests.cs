@@ -74,7 +74,6 @@ namespace Users.API.UnitTests
                 {"Name", new PropertyMappingValue(new List<string>() {"FirstName", "LastName"})}
             };
             var pm = new PropertyMapping<UserDto, User>(pmd);
-            var _propertyMappingService = new PropertyMappingService();
             _propertyMappingService.AddPropertyMapping<UserDto, User>(pm);
 
             var user = _fixture.Create<User>();
@@ -107,7 +106,6 @@ namespace Users.API.UnitTests
                 {"Name", new PropertyMappingValue(new List<string>() {"FirstName", "LastName"})}
             };
             var pm = new PropertyMapping<UserDto, User>(pmd);
-            var _propertyMappingService = new PropertyMappingService();
             _propertyMappingService.AddPropertyMapping<UserDto, User>(pm);
 
             var user = _fixture.Create<User>();
@@ -193,6 +191,54 @@ namespace Users.API.UnitTests
 
             // Assert
             Assert.True(userExists);
+        }
+        [Fact]
+        public void Given_A_Context_When_I_Call_EnsureSeedDataForContext__Then_The_Context_Should_Contain_6_Users()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<UserContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            var context = new UserContext(options);
+            context.EnsureSeedDataForContext();
+
+            // Act
+            context.EnsureSeedDataForContext();
+
+            // Assert
+            Assert.True(context.Users.Count() == 6);
+        }
+
+        [Fact]
+        public void Given_A_UserRepository_When_I_Call_GetUsers_With_Name_RevertOrder_Set_To_True_Then_A_List_Of_Users_Should_Be_Returned_In_Reverse_Order()
+        {
+            // Arrange
+            var pmd = new Dictionary<string, PropertyMappingValue>
+            {
+                {"Id", new PropertyMappingValue(new List<string>() {"Id"})},
+                {"Name", new PropertyMappingValue(new List<string>() {"FirstName", "LastName"}, true)}
+            };
+            var pm = new PropertyMapping<UserDto, User>(pmd);
+            _propertyMappingService.AddPropertyMapping<UserDto, User>(pm);
+
+            var user = _fixture.Create<User>();
+            var usersResourceParameters = new UsersResourceParameters { SearchQuery = "" };
+
+            var options = new DbContextOptionsBuilder<UserContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new UserContext(options);
+            var usersRepository = new UsersRepository(context, _propertyMappingService);
+
+            context.Add(user);
+            context.SaveChanges();
+
+            // Act
+            var getUsers = usersRepository.GetUsers(usersResourceParameters);
+
+            // Assert
+            Assert.True(getUsers.Count == 1);
         }
     }
 }
