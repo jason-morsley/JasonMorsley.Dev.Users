@@ -25,24 +25,6 @@ namespace Users.API.UnitTests
             _fixture = new Fixture();
         }
 
-        //[Fact]
-        //public void Given_A_UserRepository_When_I_Call_ApplySort_With_An_Empty_Source_Then_An_ArgumentNullException_Should_Be_Thrown()
-        //{
-        //    // Arrange
-        //    var usersResourceParameters = new UsersResourceParameters();
-
-        //    var options = new DbContextOptionsBuilder<UserContext>()
-        //        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-        //        .Options;
-        //    var context = new UserContext(options);
-
-        //    // Act
-        //    var getUsersException = Assert.Throws<System.ArgumentNullException>(() => context.Users.ApplySort(usersResourceParameters.OrderBy, null));
-
-        //    // Assert
-        //    Assert.Equal("Value cannot be null.\r\nParameter name: mappingDictionary", getUsersException.Message);
-        //}
-
         [Fact]
         public void Given_A_UserRepository_When_I_Call_ApplySort_With_An_Empty_MappingDictionary_Then_An_ArgumentNullException_Should_Be_Thrown()
         {

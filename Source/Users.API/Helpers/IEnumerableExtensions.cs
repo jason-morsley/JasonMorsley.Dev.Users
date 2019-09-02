@@ -13,7 +13,7 @@ namespace Users.API.Helpers
         {
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
 
             // create a list to hold our ExpandoObjects

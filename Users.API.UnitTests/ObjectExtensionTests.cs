@@ -59,7 +59,6 @@ namespace Users.API.UnitTests
         public void Given_A_Null_Object_When_I_Call_ShapeData_Without_Fields_Then_The_Object_With_All_Original_Fields_Should_Be_Returned()
         {
             // Arrange
-            object user = null;
             var usersResourceParameters = new UsersResourceParameters { Fields = "Id" };
 
             // Act
