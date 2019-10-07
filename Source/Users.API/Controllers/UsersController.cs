@@ -331,7 +331,7 @@ namespace Users.API.Controllers
         /// </summary>
         /// <param name="userId">The id of the user you wish to delete</param>
         /// <returns>204 NoContent</returns>
-        [HttpDelete("{Id}", Name = "DeleteUser")]
+        [HttpDelete("{userId}", Name = "DeleteUser")]
         public ActionResult DeleteUser([FromRoute] Guid userId)
         {
             var userFromRepo = _usersRepository.GetUser(userId);
